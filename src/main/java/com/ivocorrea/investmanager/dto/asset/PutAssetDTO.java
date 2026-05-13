@@ -1,4 +1,6 @@
 package com.ivocorrea.investmanager.dto.asset;
 
-public record PutAssetDTO(int quantity, double currentPrice) {
+import java.math.BigDecimal;
+
+public record PutAssetDTO(Integer quantity, BigDecimal currentPrice) {
 }
