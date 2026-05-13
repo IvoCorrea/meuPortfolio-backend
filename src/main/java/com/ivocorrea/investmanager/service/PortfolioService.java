@@ -2,6 +2,7 @@ package com.ivocorrea.investmanager.service;
 
 import com.ivocorrea.investmanager.dto.asset.AddAssetDTO;
 import com.ivocorrea.investmanager.dto.asset.PutAssetDTO;
+import com.ivocorrea.investmanager.dto.portfolio.PortfolioResponseDTO;
 import com.ivocorrea.investmanager.entity.Asset;
 import com.ivocorrea.investmanager.entity.Portfolio;
 import com.ivocorrea.investmanager.entity.User;
@@ -30,35 +31,38 @@ public class PortfolioService {
         this.assetRepository = assetRepository;
     }
 
-    public Portfolio getPortfolioById(String portfolioId, UUID userid) {
+    public PortfolioResponseDTO getPortfolioById(String portfolioId, UUID userid) {
         Portfolio portfolio = portfolioRepository.findById(UUID.fromString(portfolioId))
                 .orElseThrow(() -> new RuntimeException("Portfolio Not Found"));
 
         if (!userid.equals(portfolio.getUser().getUserid())) throw new AccessDeniedException("Access Denied");
 
-        return portfolio;
+        return PortfolioResponseDTO.fromEntity(portfolio);
     }
 
-    public List<Portfolio> getAllPortfolios(UUID userId) {
+    public List<PortfolioResponseDTO> getAllPortfolios(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        return portfolioRepository.findAllByUser(user);
+        return portfolioRepository.findAllByUser(user).stream()
+                .map(PortfolioResponseDTO::fromEntity)
+                .toList();
     }
 
-    public UUID createPortfolio(UUID userId) {
+    public UUID createPortfolio(UUID userId, String portfolioName) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Portfolio portfolioEntity = new Portfolio();
         portfolioEntity.setUser(user);
+        portfolioEntity.setPortfolioName(portfolioName);
         portfolioEntity.setAssets(new ArrayList<>());
         portfolioEntity.setCreatedAt(Instant.now());
 
         return portfolioRepository.save(portfolioEntity).getPortfolioId();
     }
 
-    public Portfolio addAssetToPortfolio(AddAssetDTO assetDTO, String portfolioId, UUID userid) {
+    public PortfolioResponseDTO addAssetToPortfolio(AddAssetDTO assetDTO, String portfolioId, UUID userid) {
 
         Portfolio portfolioToBePut = portfolioRepository.findById(UUID.fromString(portfolioId))
                 .orElseThrow(() -> new RuntimeException("Portfolio not found"));
@@ -78,7 +82,7 @@ public class PortfolioService {
             throw new RuntimeException(e);
         }
 
-        return portfolioRepository.save(portfolioToBePut);
+        return PortfolioResponseDTO.fromEntity(portfolioRepository.save(portfolioToBePut));
     }
 
     public Asset updateAsset(PutAssetDTO putAssetDTO, String portfolioId, String assetId, UUID userid) {

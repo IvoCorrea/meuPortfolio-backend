@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ivocorrea.investmanager.entity.Enum.AssetTypeEnum;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -21,10 +22,13 @@ public class Asset {
     private AssetTypeEnum type;
 
     @Column(nullable = false)
-    private int quantity;
+    private Integer quantity;
 
-    @Column(name = "current_price", nullable = false)
-    private double currentPrice;
+    @Column(name = "current_price", nullable = false, precision = 19, scale = 2)
+    private BigDecimal currentPrice;
+
+    @Column(name = "purchase_price", nullable = false, precision = 19, scale = 2)
+    private BigDecimal purchasePrice;
 
     @ManyToOne
     @JoinColumn(name = "portfolio_id", nullable = false)
@@ -34,12 +38,20 @@ public class Asset {
     public Asset() {
     }
 
-    public Asset(String ticker, AssetTypeEnum type, int quantity, double currentPrice, Portfolio portfolio) {
+    public Asset(String ticker, AssetTypeEnum type, int quantity, BigDecimal currentPrice, Portfolio portfolio) {
         this.ticker = ticker;
         this.type = type;
         this.quantity = quantity;
         this.currentPrice = currentPrice;
         this.portfolio = portfolio;
+    }
+
+    public BigDecimal getPurchasePrice() {
+        return purchasePrice;
+    }
+
+    public void setPurchasePrice(BigDecimal purchasePrice) {
+        this.purchasePrice = purchasePrice;
     }
 
     public UUID getAssetId() {
@@ -74,11 +86,11 @@ public class Asset {
         this.quantity = quantity;
     }
 
-    public double getCurrentPrice() {
+    public BigDecimal getCurrentPrice() {
         return currentPrice;
     }
 
-    public void setCurrentPrice(double currentPrice) {
+    public void setCurrentPrice(BigDecimal currentPrice) {
         this.currentPrice = currentPrice;
     }
 

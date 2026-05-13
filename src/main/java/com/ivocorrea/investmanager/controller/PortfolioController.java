@@ -1,7 +1,10 @@
 package com.ivocorrea.investmanager.controller;
 
 import com.ivocorrea.investmanager.dto.asset.AddAssetDTO;
+import com.ivocorrea.investmanager.dto.asset.AssetResponseDTO;
 import com.ivocorrea.investmanager.dto.asset.PutAssetDTO;
+import com.ivocorrea.investmanager.dto.portfolio.CreatePortfolioDTO;
+import com.ivocorrea.investmanager.dto.portfolio.PortfolioResponseDTO;
 import com.ivocorrea.investmanager.entity.Asset;
 import com.ivocorrea.investmanager.entity.Portfolio;
 import com.ivocorrea.investmanager.entity.User;
@@ -24,26 +27,27 @@ public class PortfolioController {
     }
 
     @PostMapping
-    private ResponseEntity<Portfolio> createPortfolio(
-            @AuthenticationPrincipal User user
+    private ResponseEntity<PortfolioResponseDTO> createPortfolio(
+            @AuthenticationPrincipal User user,
+            @RequestBody CreatePortfolioDTO portfolioDTO
     ) {
-        UUID createdPortfolio = portfolioService.createPortfolio(user.getUserid());
+        UUID createdPortfolio = portfolioService.createPortfolio(user.getUserid(), portfolioDTO.portfolioName());
         return ResponseEntity.created(URI.create("/portfolio/" + createdPortfolio.toString())).build();
     }
 
     @GetMapping("/{portfolioId}")
-    public ResponseEntity<Portfolio> getPortfolioById(
+    public ResponseEntity<PortfolioResponseDTO> getPortfolioById(
             @PathVariable String portfolioId, @AuthenticationPrincipal User user
     ) {
-        Portfolio portfolio = portfolioService.getPortfolioById(portfolioId, user.getUserid());
+        PortfolioResponseDTO portfolio = portfolioService.getPortfolioById(portfolioId, user.getUserid());
         return ResponseEntity.ok(portfolio);
     }
 
     @GetMapping
-    public ResponseEntity<List<Portfolio>> getAllPortfolios(
+    public ResponseEntity<List<PortfolioResponseDTO>> getAllPortfolios(
             @AuthenticationPrincipal User user
     ) {
-        List<Portfolio> portfolioList = portfolioService.getAllPortfolios(user.getUserid());
+        List<PortfolioResponseDTO> portfolioList = portfolioService.getAllPortfolios(user.getUserid());
         return ResponseEntity.ok(portfolioList);
     }
 
@@ -57,23 +61,23 @@ public class PortfolioController {
     }
 
     @PatchMapping("/{portfolioId}/asset")
-    public ResponseEntity<Portfolio> addAssetToPortfolio(
+    public ResponseEntity<PortfolioResponseDTO> addAssetToPortfolio(
             @RequestBody AddAssetDTO addAssetDTO,
             @PathVariable String portfolioId,
             @AuthenticationPrincipal User user
     ) {
-        Portfolio portfolio = portfolioService.addAssetToPortfolio(addAssetDTO, portfolioId, user.getUserid());
+        PortfolioResponseDTO portfolio = portfolioService.addAssetToPortfolio(addAssetDTO, portfolioId, user.getUserid());
         return ResponseEntity.ok(portfolio);
     }
 
     @PatchMapping("/{portfolioId}/asset/{assetId}")
-    public ResponseEntity<Asset> updateAsset(
+    public ResponseEntity<AssetResponseDTO> updateAsset(
             @RequestBody PutAssetDTO putAssetDTO,
             @PathVariable String portfolioId,
             @PathVariable String assetId,
             @AuthenticationPrincipal User user
     ) {
-        Asset asset = portfolioService.updateAsset(putAssetDTO, portfolioId, assetId, user.getUserid());
+        AssetResponseDTO asset = AssetResponseDTO.fromEntity(portfolioService.updateAsset(putAssetDTO, portfolioId, assetId, user.getUserid()));
         return ResponseEntity.ok(asset);
     }
 

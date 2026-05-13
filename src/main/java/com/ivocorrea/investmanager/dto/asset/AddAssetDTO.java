@@ -2,5 +2,7 @@ package com.ivocorrea.investmanager.dto.asset;
 
 import com.ivocorrea.investmanager.entity.Enum.AssetTypeEnum;
 
-public record AddAssetDTO(String ticker, AssetTypeEnum type, int quantity, double currentPrice) {
+import java.math.BigDecimal;
+
+public record AddAssetDTO(String ticker, AssetTypeEnum type, Integer quantity, BigDecimal currentPrice) {
 }

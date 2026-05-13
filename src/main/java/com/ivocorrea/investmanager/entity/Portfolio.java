@@ -16,6 +16,8 @@ public class Portfolio {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID portfolioId;
 
+    private String portfolioName;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -26,6 +28,11 @@ public class Portfolio {
 
     @CreationTimestamp
     private Instant createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = Instant.now();
+    }
 
     public Portfolio() {
     }
@@ -42,6 +49,14 @@ public class Portfolio {
 
     public void setPortfolioId(UUID portfolioId) {
         this.portfolioId = portfolioId;
+    }
+
+    public String getPortfolioName() {
+        return portfolioName;
+    }
+
+    public void setPortfolioName(String portfolioName) {
+        this.portfolioName = portfolioName;
     }
 
     public User getUser() {
