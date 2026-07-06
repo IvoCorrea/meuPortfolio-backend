@@ -48,7 +48,7 @@ public class PortfolioService {
                 .toList();
     }
 
-    public UUID createPortfolio(UUID userId, String portfolioName) {
+    public PortfolioResponseDTO createPortfolio(UUID userId, String portfolioName) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -59,7 +59,7 @@ public class PortfolioService {
         portfolioEntity.setAssets(new ArrayList<>());
         portfolioEntity.setCreatedAt(Instant.now());
 
-        return portfolioRepository.save(portfolioEntity).getPortfolioId();
+        return PortfolioResponseDTO.fromEntity(portfolioRepository.save(portfolioEntity));
     }
 
     public PortfolioResponseDTO addAssetToPortfolio(AddAssetDTO assetDTO, String portfolioId, UUID userid) {
@@ -74,6 +74,7 @@ public class PortfolioService {
         newAsset.setType(assetDTO.type());
         newAsset.setQuantity(assetDTO.quantity());
         newAsset.setCurrentPrice(assetDTO.currentPrice());
+        newAsset.setPurchasePrice(assetDTO.purchasePrice());
         newAsset.setPortfolio(portfolioToBePut);
 
         try {
@@ -89,11 +90,8 @@ public class PortfolioService {
         Asset assetToBeUpdated = assetRepository.findById(UUID.fromString(assetId))
                 .orElseThrow(() -> new RuntimeException("Asset Not Found"));
 
-        if (!assetToBeUpdated.getPortfolio().getPortfolioId().equals(UUID.fromString(portfolioId))) {
-            throw new IllegalArgumentException("Asset does not belong to the specified portfolio");
-        }
-        if (!assetToBeUpdated.getPortfolio().getUser().getUserid().equals(userid))
-            throw new AccessDeniedException("Access Denied");
+        if (!assetToBeUpdated.getPortfolio().getPortfolioId().equals(UUID.fromString(portfolioId))) throw new IllegalArgumentException("Asset does not belong to the specified portfolio");
+        if (!assetToBeUpdated.getPortfolio().getUser().getUserid().equals(userid)) throw new AccessDeniedException("Access Denied");
 
         try {
             assetToBeUpdated.setQuantity(putAssetDTO.quantity());
@@ -121,9 +119,7 @@ public class PortfolioService {
           Asset asset = assetRepository.findById(UUID.fromString(assetId))
                 .orElseThrow(() -> new EntityNotFoundException("Asset not found"));
 
-        if (!asset.getPortfolio().getPortfolioId().equals(portfolio.getPortfolioId())) {
-            throw new IllegalArgumentException("Asset does not belong to the specified portfolio");
-        }
+        if (!asset.getPortfolio().getPortfolioId().equals(portfolio.getPortfolioId())) throw new IllegalArgumentException("Asset does not belong to the specified portfolio");
         if (!portfolio.getUser().getUserid().equals(userid)) throw new AccessDeniedException("Access Denied");
 
         assetRepository.deleteById(asset.getAssetId());

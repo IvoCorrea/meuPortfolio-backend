@@ -5,8 +5,6 @@ import com.ivocorrea.investmanager.dto.asset.AssetResponseDTO;
 import com.ivocorrea.investmanager.dto.asset.PutAssetDTO;
 import com.ivocorrea.investmanager.dto.portfolio.CreatePortfolioDTO;
 import com.ivocorrea.investmanager.dto.portfolio.PortfolioResponseDTO;
-import com.ivocorrea.investmanager.entity.Asset;
-import com.ivocorrea.investmanager.entity.Portfolio;
 import com.ivocorrea.investmanager.entity.User;
 import com.ivocorrea.investmanager.service.PortfolioService;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/portfolio")
@@ -31,8 +28,8 @@ public class PortfolioController {
             @AuthenticationPrincipal User user,
             @RequestBody CreatePortfolioDTO portfolioDTO
     ) {
-        UUID createdPortfolio = portfolioService.createPortfolio(user.getUserid(), portfolioDTO.portfolioName());
-        return ResponseEntity.created(URI.create("/portfolio/" + createdPortfolio.toString())).build();
+        PortfolioResponseDTO createdPortfolio = portfolioService.createPortfolio(user.getUserid(), portfolioDTO.portfolioName());
+        return ResponseEntity.created(URI.create("/portfolio/" + createdPortfolio.id().toString())).body(createdPortfolio);
     }
 
     @GetMapping("/{portfolioId}")
