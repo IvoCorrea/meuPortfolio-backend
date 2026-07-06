@@ -28,7 +28,7 @@ public class PortfolioController {
             @AuthenticationPrincipal User user,
             @RequestBody CreatePortfolioDTO portfolioDTO
     ) {
-        PortfolioResponseDTO createdPortfolio = portfolioService.createPortfolio(user.getUserid(), portfolioDTO.portfolioName());
+        PortfolioResponseDTO createdPortfolio = portfolioService.createPortfolio(user.getUserid(), portfolioDTO.name());
         return ResponseEntity.created(URI.create("/portfolio/" + createdPortfolio.id().toString())).body(createdPortfolio);
     }
 

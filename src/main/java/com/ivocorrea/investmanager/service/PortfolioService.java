@@ -48,14 +48,14 @@ public class PortfolioService {
                 .toList();
     }
 
-    public PortfolioResponseDTO createPortfolio(UUID userId, String portfolioName) {
+    public PortfolioResponseDTO createPortfolio(UUID userId, String name) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Portfolio portfolioEntity = new Portfolio();
         portfolioEntity.setUser(user);
-        portfolioEntity.setPortfolioName(portfolioName);
+        portfolioEntity.setPortfolioName(name);
         portfolioEntity.setAssets(new ArrayList<>());
         portfolioEntity.setCreatedAt(Instant.now());
 
